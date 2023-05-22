@@ -20,6 +20,8 @@ A "use devcontainer" directive for direnv.
 
 ### Caveats
 
+#### Not all executables
+
 Not all executables from the container will be available by default. The script has a list of default ones, here's an excerpt:
 
 ```
@@ -32,3 +34,11 @@ Not everything is included because:
 1. Programs like `cd` don't even make sense
 
 If you find useful programs to include in the defaults, then please make a PR!
+
+#### No refresh
+
+I was too lazy to figure out automatic reloads for the env. You can delete the `.devcontainer/wrappers` folder and run `direnv reload` to do that.
+
+```
+rm -rf .devcontainer/wrappers; direnv reload
+```
