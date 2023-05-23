@@ -10,7 +10,7 @@ use_devcontainer() {
   local script_dir="$PWD"
   local devcontainer_dir="$script_dir/.devcontainer"
   local wrappers_dir="$devcontainer_dir/wrappers"
-  local run_in_container="devcontainer exec --workspace-folder '$script_dir'"
+  local run_in_container="devcontainer exec --workspace-folder '$script_dir' --"
 
   if [ -d "$wrappers_dir" ]; then
     PATH_add "$wrappers_dir"
@@ -31,15 +31,20 @@ for dir in $PATH; do
 done
 ')"
   IFS=$'\n'
-  included_programs=(python3 pip pip3 node pnpm npm yarn ghci uvicorn gvicorn)
+  included_programs=(python3 pip pip3 node pnpm npm yarn ghci uvicorn gvicorn go sudo gotest apk apt yum)
   included_programs+=($*)
   for program in $programs; do
     if ! _containsElement "$program" "${included_programs[@]}"; then
       continue
     fi
     local target="$wrappers_dir/$program"
-    echo "#!/bin/sh" > "$target"
-    echo "$run_in_container" "\"$program\"" \"\$@\" >> "$target"
+    {
+    echo "#!/bin/sh"
+    echo "# Remove wrappers from path to avoid collision of 'node'."
+    # Man, the shell quoting, I swear.
+    echo "export PATH=\"\$(echo \"\$PATH\" | sed \"s|$wrappers_dir:||\")\""
+    echo "$run_in_container" "\"$program\"" \"\$@\"
+    } > "$target"
     chmod +x "$target"
   done
 }
