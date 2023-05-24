@@ -67,6 +67,15 @@ fi
     chmod +x "$target"
   done
   _mk_reloader "$wrappers_dir"
+  _mk_on_host "$wrappers_dir"
+}
+
+_mk_on_host() {
+  printf '#!/bin/sh
+export PATH="$(echo "$PATH" | sed "s|%s:||")"
+eval "$@"
+' "$1" > "$1/on_host"
+  chmod u+x "$1/on_host"
 }
 
 _mk_reloader() {
