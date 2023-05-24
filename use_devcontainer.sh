@@ -31,7 +31,7 @@ for dir in $PATH; do
 done
 ')"
   IFS=$'\n'
-  included_programs=(python3 pip pip3 node pnpm npm yarn ghci uvicorn gvicorn go sudo gotest apk apt yum)
+  included_programs=(python3 pip pip3 node pnpm npm npx yarn ghci uvicorn gvicorn go sudo gotest apk apt yum)
   included_programs+=($*)
   for program in $programs; do
     if ! _containsElement "$program" "${included_programs[@]}"; then
@@ -41,9 +41,28 @@ done
     {
     echo "#!/bin/sh"
     echo "# Remove wrappers from path to avoid collision of 'node'."
-    # Man, the shell quoting, I swear.
+
+    # The shell quoting... I swear.
     echo "export PATH=\"\$(echo \"\$PATH\" | sed \"s|$wrappers_dir:||\")\""
-    echo "$run_in_container" "\"$program\"" \"\$@\"
+
+    printf "%s\n" "
+current_dir=\"\$PWD\"
+target_dir=\"\${current_dir#$script_dir}\"
+target_dir=\"\${target_dir#/}\"
+
+# Quote args so spaces don't mess it up.
+args_to_program=''
+for arg in \"\$@\"; do
+    args_to_program=\"\$args_to_program '\$arg'\"
+done
+
+if [ -n \"\$target_dir\" ]
+then
+    $run_in_container sh -c \"cd \$target_dir; $program \$args_to_program\"
+else
+    $run_in_container sh -c \"$program \$args_to_program\"
+fi
+"
     } > "$target"
     chmod +x "$target"
   done
