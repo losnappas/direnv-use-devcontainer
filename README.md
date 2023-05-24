@@ -12,9 +12,8 @@ A "use devcontainer" directive for direnv.
 
 ## Usage
 
-1. Have a git repo
-1. Have a `.devcontainer/devcontainer.json` *in the root of the repo you're working in* (the script is using git to find the workspace root)
-1. `echo "use devcontainer" >> .envrc` (or `"use devcontainer program1 program2 ..."`)
+1. Have a `.devcontainer/devcontainer.json`
+1. `echo "use devcontainer" >> .envrc` (or `"use devcontainer program1 program2 ..."`) on the same directory level as the `.devcontainer`
 1. `direnv allow`
 1. You should now be able to run some programs inside the container. See caveats
 
@@ -44,3 +43,9 @@ $ rm -rf .devcontainer/wrappers; direnv reload
 $ # There is now a reloader script included in the wrappers dir, so you can just call:
 $ reloader # same as the rm -rf, though caution is always warranted
 ```
+
+### Scripts
+
+#### `on_host`
+
+Runs things outside of the container. E.g. if you want to run host system `apt`, you can do `on_host apt --help`. It can be useful at times, e.g. you want to `npm install` on host but container doesn't have `npm`.
