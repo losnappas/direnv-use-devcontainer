@@ -40,5 +40,7 @@ If you find useful programs to include in the defaults, then please make a PR!
 I was too lazy to figure out automatic reloads for the env. You can delete the `.devcontainer/wrappers` folder and run `direnv reload` to do that.
 
 ```
-rm -rf .devcontainer/wrappers; direnv reload
+$ rm -rf .devcontainer/wrappers; direnv reload
+$ # There is now a reloader script included in the wrappers dir, so you can just call:
+$ reloader # same as the rm -rf, though caution is always warranted
 ```
