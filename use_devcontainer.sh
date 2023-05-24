@@ -27,14 +27,14 @@ for dir in $PATH; do
     continue
   fi
   s="$(find "$dir" -maxdepth 1 -executable -exec basename "{}" \;)"
-  echo -n "$s"
+  echo "$s"
 done
 ')"
   IFS=$'\n'
   included_programs=(python3 pip pip3 node pnpm npm npx yarn ghci uvicorn gvicorn go sudo gotest apk apt yum)
   included_programs+=($*)
-  for program in $programs; do
-    if ! _containsElement "$program" "${included_programs[@]}"; then
+  for program in $(printf "%s\n" $programs | sort -u); do
+    if test -z "$program" || ! _containsElement "$program" "${included_programs[@]}"; then
       continue
     fi
     local target="$wrappers_dir/$program"
@@ -66,6 +66,13 @@ fi
     } > "$target"
     chmod +x "$target"
   done
+  _mk_reloader "$wrappers_dir"
+}
+
+_mk_reloader() {
+  printf "#!/bin/sh
+rm -rf %s; direnv reload" "$1" >> "$1/reload"
+  chmod u+x "$1/reload"
 }
 
 _containsElement () {
